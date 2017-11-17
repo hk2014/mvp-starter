@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import $ from 'jquery';
 import List from './components/List.jsx';
+import Search from './components/Search.jsx';
+//import drop from './database-mongo/index.js';
 
 class App extends React.Component {
   constructor(props) {
@@ -11,11 +13,17 @@ class App extends React.Component {
     }
   }
 
-  componentDidMount() {
-    $.ajax({
-      url: '/items', 
-      success: (data) => {
+
+  get() {
+      $.ajax({
+      url: '/items',  
+      type: 'GET',
+      success: (data) => { 
+        console.log('get request success: ', data),
+        //this.state.items = [];
+
         this.setState({
+          //items: []
           items: data
         })
       },
@@ -24,10 +32,31 @@ class App extends React.Component {
       }
     });
   }
+  componentDidMount() {
+    this.get();
+  }
 
-  render () {
+  search(term) {
+    //console.log('term:', term);
+    $.ajax({
+      url: '/items',
+      type: 'POST',
+      data: {term},
+      success: (data) => {
+        console.log('post request success: ', data);
+        this.get();
+      },
+      error: (err) => {
+        console.log('post request fail: ', err);
+      }
+    })
+  }
+
+  
+   render () {
     return (<div>
-      <h1>Item List</h1>
+      <h1>List of Doctors</h1>
+      <Search onSearch={this.search.bind(this)}/>
       <List items={this.state.items}/>
     </div>)
   }
